@@ -1,0 +1,23 @@
+{
+  "name": "m-m.api",
+  "version": "1.0.0",
+  "description": "API for M-M.Institute",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the-neighbor/M-M.Api.git"
+  },
+  "author": "Olive Daly, The Neighbor",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/the-neighbor/M-M.Api/issues"
+  },
+  "homepage": "https://github.com/the-neighbor/M-M.Api#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^6.7.0"
+  }
+}
