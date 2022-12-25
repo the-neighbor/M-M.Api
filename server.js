@@ -432,4 +432,6 @@ app.delete("/posts/:id", async (req, res) => {
     }
 })
 
-app.listen(3001, () => console.log("Server started"));
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => console.log("Server started"));
