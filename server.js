@@ -42,7 +42,11 @@ function signToken(user) {
 main().catch(err => console.log(err));
 
 async function main() {
-  await mongoose.connect('mongodb://localhost:27017/test3');
+    if (process.env.ATLAS_DB) {
+        await mongoose.connect(process.env.ATLAS_DB);
+    } else {
+    await mongoose.connect('mongodb://localhost:27017/test3');
+    }
 }
 //FUNCTION TO COLLECT PERSONAL DATA
 
@@ -136,6 +140,10 @@ const postSchema = new mongoose.Schema({
     date: {
         type: Date,
         default: Date.now
+    },
+    repost: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
     }
 })
 ;
@@ -246,8 +254,8 @@ app.post("/posts/create", [withAuth, upload.single("image")], async (req, res) =
         if (req.file){
             imageUri = req.file.path
         }
-        var { title, content, tags } = req.body;
-        const post = new Post({user_id, username, title, content, imageUri, tags });
+        var { title, content, tags, repost } = req.body;
+        const post = new Post({user_id, username, title, content, imageUri, tags, repost });
         await post.save();
         console.log(post)
         user.posts.push(post._id);
@@ -401,6 +409,24 @@ app.post("/tags/unfollow", withAuth, async (req, res) => {
             console.log(result);
             res.json("success")
         }
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+})
+
+app.get("/posts/:id", async (req, res) => {
+    try {
+        const result = await Post.findById(req.params.id);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+})
+
+app.delete("/posts/:id", async (req, res) => {
+    try {
+        const result = await Post.findByIdAndDelete(req.params.id);
+        res.json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
