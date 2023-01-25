@@ -183,6 +183,9 @@ app.post("/users/create", async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const user = new User({username, email, passwordHash});
     await user.save();
+    const token = signToken(user);
+    res.cookie('token', token, { httpOnly: true });
+    user.token = token;
     res.send(user);
     } catch (err) {
         console.error(err);
