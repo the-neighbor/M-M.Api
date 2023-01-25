@@ -178,15 +178,13 @@ app.get("/users/:username", async (req, res) => {
 
 app.post("/users/create", async (req, res) => {
     try {
-    console.log(req);
     var { username, email, password } = req.body;
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = new User({username, email, passwordHash});
+    let user = new User({username, email, passwordHash});
     await user.save();
     const token = signToken(user);
     res.cookie('token', token, { httpOnly: true });
-    user.token = token;
-    res.send(user);
+    res.json({...user, token:token});
     } catch (err) {
         console.error(err);
         res.status(500).json(err);
