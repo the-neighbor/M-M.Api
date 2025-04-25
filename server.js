@@ -6,11 +6,15 @@ const multer = require('multer');
 const path = require('path');
 const upload = multer({dest: 'uploads/'})
 const jwt = require('jsonwebtoken');
-const secret = 'testingsecret';
+const secret = process.env.SECRET || 'testingsecret';
 const expiration = '1h';
 
 const bcrypt = require('bcrypt');
 const { runInNewContext } = require('vm');
+
+
+let nowPlaying = {
+};
 
 function withAuth(req, res, next) {
     // console.log(req.headers)
@@ -170,12 +174,6 @@ app.get("/users/search" , async (req, res) => {
     res.send([...usernameMatches, ...tagsMatches]);
 });
 
-app.get("/users/:username", async (req, res) => {
-    console.log()
-    const user = await User.findOne({username: req.params.username}).populate({path:"posts", options: {sort: {date: -1}}});
-    res.send(user);
-})
-
 app.post("/users/create", async (req, res) => {
     try {
     var { username, email, password } = req.body;
@@ -222,6 +220,12 @@ app.put("/users/edit", [withAuth, upload.single("image")], async (req, res) => {
     }
 }
 )
+
+app.get("/users/:username", async (req, res) => {
+    console.log()
+    const user = await User.findOne({username: req.params.username}).populate({path:"posts", options: {sort: {date: -1}}});
+    res.send(user);
+})
 
 app.get('/me', withAuth, async (req, res) => {
         try {
@@ -432,6 +436,22 @@ app.delete("/posts/:id", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 })
+
+app.get('/nowplaying', (req, res) => {
+    res.json(nowPlaying);
+});
+
+// POST /nowplaying - Update the currently playing show
+app.post('/nowplaying', (req, res) => {
+    const { show_title, show_description, start_time, end_time } = req.body;
+
+    if (show_title && show_description && start_time && end_time) {
+        nowPlaying = { show_title, show_description, start_time, end_time };
+        res.json({ message: "Now playing updated successfully", nowPlaying });
+    } else {
+        res.status(400).json({ error: "Invalid request, all fields are required" });
+    }
+});
 
 const port = process.env.PORT || 3000;
 
